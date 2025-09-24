@@ -2,6 +2,7 @@ import os
 import shutil
 from fastapi import FastAPI, UploadFile
 from pathlib import Path
+from typing import Annotated
 from uuid import uuid4
 
 from argofilechecker_python_wrapper import FileChecker
@@ -13,11 +14,25 @@ app = FastAPI(root_path=ROOT_PATH)
 
 @app.get("/")
 def app_status():
-    return {"OK"}
+    """
+    Health check endpoint to confirm that the app is running.
+    :return: status message
+    """
+    return {"status": "OK"}
 
 
 @app.post("/check-files")
-def check_file_list(files: list[UploadFile]):
+def check_file_list(files: list[UploadFile], dac: str):
+    """
+    Main endpoint to upload files to be checked.
+    :param files:
+        List of files uploaded as multipart/form-data
+    :param dac:
+        Relevant DAC for the files, e.g. coriolis, bodc, aoml, etc. Must be the same DAC for all files
+
+    :return:
+        { "results": ValidationResult object }
+    """
     request_id = uuid4()
     request_file_dir = Path(f"/home/app/input/{request_id}")
     os.makedirs(request_file_dir)
@@ -28,5 +43,6 @@ def check_file_list(files: list[UploadFile]):
         finally:
             upload_file.file.close()
     file_checker = FileChecker(specs_path='/home/app/file_checker_spec')
-    results = {"results": file_checker.check_files(request_file_dir.glob("*"), "bodc")}
+    results = {"results": file_checker.check_files(request_file_dir.glob("*"), dac)}
+    shutil.rmtree(request_file_dir)
     return results
