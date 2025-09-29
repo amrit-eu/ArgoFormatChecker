@@ -13,7 +13,8 @@ class ResultType(str, Enum):
     FAILURE = "FILE-REJECTED"
     ERROR = "ERROR"
 
-class PhaseType (str, Enum) :
+
+class PhaseType(str, Enum):
     """File Checker verification phases."""
 
     OPEN_FILE = "OPEN-FILE"
@@ -22,22 +23,20 @@ class PhaseType (str, Enum) :
     NAME = "FILE-NAME-CHECK"
 
 
-
-class ValidationResult (BaseModel):
+class ValidationResult(BaseModel):
     """Represents the result of an Argo file checker validation."""
 
-    file_checker_version:str
-    file:str
-    result : ResultType
+    file_checker_version: str
+    file: str
+    result: ResultType
     phase: PhaseType
-    errors_number : int
-    warnings_number : int
-    errors_messages : List[str]
-    warnings_messages : List[str]
+    errors_number: int
+    warnings_number: int
+    errors_messages: List[str]
+    warnings_messages: List[str]
 
-    def to_string (self) -> str :
+    def to_string(self) -> str:
         """Summary for humans."""
         status = "FILE ACCEPTED" if self.result == ResultType.SUCCESS else "FILE REJECTED"
 
         return f"{self.file} : {status} with {self.errors_number} error(s) and {self.warnings_number} warning(s)"
-    

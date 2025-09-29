@@ -2,7 +2,6 @@ import os
 import shutil
 from fastapi import FastAPI, UploadFile
 from pathlib import Path
-from typing import Annotated
 from uuid import uuid4
 
 from argofilechecker_python_wrapper import FileChecker

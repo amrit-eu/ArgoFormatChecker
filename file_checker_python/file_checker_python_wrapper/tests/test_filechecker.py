@@ -1,4 +1,5 @@
 """Tests for the argofilechecker_python_wrapper module."""
+
 import pytest
 
 from argofilechecker_python_wrapper import FileChecker
@@ -16,7 +17,8 @@ def env_paths(tmp_path, monkeypatch):
     monkeypatch.setenv("FILE_CHECKER_SPECS", str(specs))
     return jar, specs
 
-def test_check_files_empty_input_files_list(env_paths) :
+
+def test_check_files_empty_input_files_list(env_paths):
     """Should raise an Error when no files list are provided."""
     file_checker = FileChecker()
 
