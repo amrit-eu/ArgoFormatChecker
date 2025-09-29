@@ -2,11 +2,12 @@ import os
 import shutil
 from fastapi import FastAPI, UploadFile
 from pathlib import Path
-from uuid import uuid4
+from tempfile import TemporaryDirectory
 
 from argofilechecker_python_wrapper import FileChecker, ValidationResult
 
 ROOT_PATH = os.getenv("API_ROOT_PATH", "")
+UPLOAD_FILES_DIR = Path(os.getenv("UPLOAD_FILES_DIR", Path.cwd()))
 
 app = FastAPI(root_path=ROOT_PATH)
 
@@ -30,18 +31,25 @@ def check_file_list(files: list[UploadFile], dac: str) -> list[ValidationResult]
         Relevant DAC for the files, e.g. coriolis, bodc, aoml, etc. Must be the same DAC for all files
 
     :return:
-        { "results": ValidationResult object }
+        list[ValidationResult]
     """
-    request_id = uuid4()
-    request_file_dir = Path(f"/home/app/input/{request_id}")
-    request_file_dir.mkdir()
-    for upload_file in files:
-        try:
-            with request_file_dir.joinpath(upload_file.filename).open("wb") as buffer:
-                shutil.copyfileobj(upload_file.file, buffer)
-        finally:
-            upload_file.file.close()
-    file_checker = FileChecker()
-    results = file_checker.check_files(request_file_dir.glob("*"), dac)
-    shutil.rmtree(request_file_dir)
+    if not files:
+        raise ValueError("No files to check.")
+    if not UPLOAD_FILES_DIR.exists():
+        raise FileNotFoundError(f"Upload directory does not exist: {UPLOAD_FILES_DIR}")
+    if not UPLOAD_FILES_DIR.is_dir():
+        raise NotADirectoryError(f"Upload directory path is not a directory: {UPLOAD_FILES_DIR}")
+
+    with TemporaryDirectory(dir=UPLOAD_FILES_DIR) as request_tmp_dir:
+        request_file_dir = Path(request_tmp_dir)
+        for upload_file in files:
+            try:
+                with request_file_dir.joinpath(upload_file.filename).open("wb") as buffer:
+                    shutil.copyfileobj(upload_file.file, buffer)
+            finally:
+                upload_file.file.close()
+        file_checker = FileChecker()
+        results = file_checker.check_files(request_file_dir.glob("*"), dac)
+    if not results:
+        raise RuntimeError("An error occurred while handling uploaded files.")
     return results

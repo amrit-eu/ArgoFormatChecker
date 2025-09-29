@@ -78,6 +78,7 @@ COPY ./file_checker_spec /app/specs
 #env variables for file checker
 ENV FILE_CHECKER_JAR="/app/app.jar"
 ENV FILE_CHECKER_SPECS="/app/specs"
+ENV UPLOAD_FILES_DIR="/home/app/input"
 
 WORKDIR /home/app
 COPY file_checker_python/file_checker_python_api/pyproject.toml file_checker_python/file_checker_python_api/poetry*.lock file_checker_python/file_checker_python_api/README.md ./
