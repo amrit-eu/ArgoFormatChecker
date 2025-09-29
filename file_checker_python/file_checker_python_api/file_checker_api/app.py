@@ -4,7 +4,7 @@ from fastapi import FastAPI, UploadFile
 from pathlib import Path
 from uuid import uuid4
 
-from argofilechecker_python_wrapper import FileChecker
+from argofilechecker_python_wrapper import FileChecker, ValidationResult
 
 ROOT_PATH = os.getenv("API_ROOT_PATH", "")
 
@@ -12,7 +12,7 @@ app = FastAPI(root_path=ROOT_PATH)
 
 
 @app.get("/")
-def app_status():
+def app_status() -> dict[str, str]:
     """
     Health check endpoint to confirm that the app is running.
     :return: status message
@@ -21,7 +21,7 @@ def app_status():
 
 
 @app.post("/check-files")
-def check_file_list(files: list[UploadFile], dac: str):
+def check_file_list(files: list[UploadFile], dac: str) -> list[ValidationResult]:
     """
     Main endpoint to upload files to be checked.
     :param files:
@@ -34,7 +34,7 @@ def check_file_list(files: list[UploadFile], dac: str):
     """
     request_id = uuid4()
     request_file_dir = Path(f"/home/app/input/{request_id}")
-    os.makedirs(request_file_dir)
+    request_file_dir.mkdir()
     for upload_file in files:
         try:
             with request_file_dir.joinpath(upload_file.filename).open("wb") as buffer:
@@ -42,6 +42,6 @@ def check_file_list(files: list[UploadFile], dac: str):
         finally:
             upload_file.file.close()
     file_checker = FileChecker()
-    results = {"results": file_checker.check_files(request_file_dir.glob("*"), dac)}
+    results = file_checker.check_files(request_file_dir.glob("*"), dac)
     shutil.rmtree(request_file_dir)
     return results
