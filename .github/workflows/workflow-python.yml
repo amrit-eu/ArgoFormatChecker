@@ -23,11 +23,11 @@ jobs:
       context: .
       file: "python.Dockerfile"
       target: file-checker-python
-      image-path: ghcr.io/OneArgo/ArgoFormatChecker/app
+      image-path: ghcr.io/OneArgo/ArgoFormatChecker/python-wrapper
   container-image-build-api:
     uses: ./.github/workflows/component-container-image.yml
     with:
       context: .
       file: "python.Dockerfile"
       target: file-checker-api
-      image-path: ghcr.io/OneArgo/ArgoFormatChecker/app
+      image-path: ghcr.io/OneArgo/ArgoFormatChecker/python-api
