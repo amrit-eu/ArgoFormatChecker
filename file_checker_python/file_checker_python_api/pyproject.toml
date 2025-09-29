@@ -3,7 +3,7 @@ name = "file-checker-api"
 version = "0.0.0"
 description = ""
 authors = [
-    {name = "BODC",email = "enquiries@bodc.ac.uk"}
+    {name = "Elisabeth Wetchy", email = "Elisabeth.Wetchy@noc.ac.uk"}
 ]
 readme = "README.md"
 requires-python = ">=3.10,<4.0"
